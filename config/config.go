@@ -11,6 +11,8 @@ import (
 	"strings"
 	"sync"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/olegshs/go-tools/helpers/structmap"
 	"github.com/olegshs/go-tools/helpers/typeconv"
 )

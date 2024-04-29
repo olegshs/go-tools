@@ -13,4 +13,5 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.22
 	golang.org/x/exp v0.0.0-20240416160154-fe59bbe5cc7f
 	golang.org/x/net v0.24.0
+	gopkg.in/yaml.v2 v2.4.0
 )
