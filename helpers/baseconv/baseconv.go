@@ -3,7 +3,6 @@
 package baseconv
 
 import (
-	"errors"
 	"fmt"
 	"math/big"
 )
@@ -15,6 +14,11 @@ const (
 )
 
 func Parse(src string, alphabet string) (*big.Int, error) {
+	negative := src[0] == '-'
+	if negative {
+		src = src[1:]
+	}
+
 	dst := new(big.Int)
 	radix := big.NewInt(int64(len(alphabet)))
 
@@ -29,12 +33,15 @@ func Parse(src string, alphabet string) (*big.Int, error) {
 	for i, l := 0, len(src); i < l; i++ {
 		b := decodeMap[src[i]]
 		if b == 0xFF {
-			e := fmt.Sprintf("Invalid character at offset %d", i)
-			return nil, errors.New(e)
+			return nil, fmt.Errorf("invalid character at offset %d", i)
 		}
 
 		dst.Mul(dst, radix)
 		dst.Add(dst, big.NewInt(int64(b)))
+	}
+
+	if negative {
+		dst.Neg(dst)
 	}
 
 	return dst, nil
@@ -76,9 +83,20 @@ func FormatHex(src string, alphabet string) string {
 }
 
 func format(src *big.Int, alphabet string) string {
+	zero := big.NewInt(0)
+	cmpZero := src.Cmp(zero)
+
+	if cmpZero == 0 {
+		return alphabet[0:1]
+	}
+
+	negative := cmpZero < 0
+	if negative {
+		src.Abs(src)
+	}
+
 	var dst []byte
 	radix := big.NewInt(int64(len(alphabet)))
-	zero := big.NewInt(0)
 
 	for src.Cmp(zero) > 0 {
 		mod := new(big.Int)
@@ -91,5 +109,10 @@ func format(src *big.Int, alphabet string) string {
 		dst[i], dst[j] = dst[j], dst[i]
 	}
 
-	return string(dst)
+	s := string(dst)
+	if negative {
+		s = "-" + s
+	}
+
+	return s
 }

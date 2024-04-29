@@ -125,6 +125,10 @@ func (mgr *Manager) Remember(s session.SessionInterface, r *http.Request, w http
 	}
 
 	h := helpers.HashByName(mgr.conf.Cookie.Hash)
+	if !h.Available() {
+		return
+	}
+
 	tokenBytes, err := token.Encode(payload, h, secrets...)
 	if err != nil {
 		return
@@ -186,6 +190,10 @@ func (mgr *Manager) Restore(s session.SessionInterface, r *http.Request, w http.
 	}
 
 	h := helpers.HashByName(mgr.conf.Cookie.Hash)
+	if !h.Available() {
+		return nil
+	}
+
 	err = token.Validate(payloadBytes, h, secrets...)
 	if err != nil {
 		return nil
